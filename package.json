@@ -23,9 +23,10 @@
     "url": "https://github.com/ktsn/vue-sfc-parser.git"
   },
   "scripts": {
-    "prepublishOnly": "npm run clean && npm run test && npm run build",
+    "prepublishOnly": "npm run clean && npm run test && npm run build && npm run build:dts",
     "clean": "rm -rf lib",
     "build": "tsc -p src",
+    "build:dts": "tsc -p src --noImplicitAny false --allowJs false --declaration",
     "dev": "jest --watch",
     "lint": "tslint -p . && prettier --list-different \"{src,scripts,test}/**/*.{js,ts}\"",
     "format": "prettier --write \"{src,scripts,test}/**/*.{js,ts}\"",
