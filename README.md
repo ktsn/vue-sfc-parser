@@ -1,6 +1,6 @@
 # Vue SFC Parser
 
-Vue.js single file component parser with some helpers.
+Vue.js single file component parser for static analysis.
 
 ## Usage
 

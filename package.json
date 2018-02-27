@@ -2,8 +2,14 @@
   "name": "vue-sfc-parser",
   "version": "0.0.0",
   "author": "katashin",
-  "description": "",
-  "keywords": [],
+  "description": "Vue.js single file component parser for static analysis",
+  "keywords": [
+    "Vue.js",
+    "component",
+    "parser",
+    "single file component",
+    "static analysis"
+  ],
   "license": "MIT",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",

@@ -1,4 +1,4 @@
-/**
+/*!
  * Vue SFC Parser
  * Copyright (c) Evan You
  * MIT License
