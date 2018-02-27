@@ -23,22 +23,12 @@ export class SFCBlock {
     })
   }
 
-  modifyOffset(offset: number): number {
+  calcGlobalOffset(offset: number): number {
     return this.start + offset
   }
 
-  modifyRange(range: [number, number]): [number, number] {
-    return [this.modifyOffset(range[0]), this.modifyOffset(range[1])]
-  }
-
-  modifyPosition(position: {
-    start: number
-    end: number
-  }): { start: number; end: number } {
-    return {
-      start: this.modifyOffset(position.start),
-      end: this.modifyOffset(position.end)
-    }
+  calcGlobalRange(range: [number, number]): [number, number] {
+    return [this.calcGlobalOffset(range[0]), this.calcGlobalOffset(range[1])]
   }
 }
 

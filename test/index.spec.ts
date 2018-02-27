@@ -53,7 +53,7 @@ describe('Vue SFC Parser', () => {
     </script>
     `
     const res = parseComponent(code)
-    expect(res.template!.modifyOffset(7)).toBe(22)
-    expect(res.script!.modifyOffset(5)).toBe(75)
+    expect(res.template!.calcGlobalOffset(7)).toBe(22)
+    expect(res.script!.calcGlobalOffset(5)).toBe(75)
   })
 })
