@@ -78,4 +78,117 @@ describe('Diff Watcher', () => {
     expect(mock2).not.toHaveBeenCalled()
     expect(mock3).toHaveBeenCalled()
   })
+
+  it('should always call if the file is passed on the first time', () => {
+    const mock1 = jest.fn()
+    const mock2 = jest.fn()
+    const mock3 = jest.fn()
+    const mock4 = jest.fn()
+    const watcher = createDiffWatcher()
+
+    watcher
+      .diff('test.vue', '')
+      .template(mock1)
+      .script(mock2)
+      .styles(mock3)
+      .customBlocks('test', mock4)
+
+    expect(mock1).toHaveBeenCalledWith(null)
+    expect(mock2).toHaveBeenCalledWith(null)
+    expect(mock3).toHaveBeenCalledWith([])
+    expect(mock4).toHaveBeenCalledWith([])
+  })
+
+  it('should call when the block is disappeared', () => {
+    const mock = jest.fn()
+    const watcher = createDiffWatcher()
+
+    watcher.diff('test.vue', '<template>Hi</template>')
+    watcher.diff('test.vue', '').template(mock)
+
+    expect(mock).toHaveBeenCalledWith(null)
+  })
+
+  it('should call when the block position is changed', () => {
+    const mock = jest.fn((template: SFCBlock) => {
+      expect(template.start).toBe(27)
+      expect(template.end).toBe(29)
+    })
+    const watcher = createDiffWatcher()
+
+    watcher.diff('test.vue', '<template>Hi</template>')
+    watcher
+      .diff('test.vue', '<script></script><template>Hi</template>')
+      .template(mock)
+
+    expect(mock).toHaveBeenCalled()
+  })
+
+  it('should call when the lang is changed', () => {
+    const mock = jest.fn((script: SFCBlock) => {
+      expect(script.lang).toBe('ts')
+    })
+    const watcher = createDiffWatcher()
+
+    watcher.diff('test.vue', '<script          >export default {}</script>')
+    watcher
+      .diff('test.vue', '<script lang="ts">export default {}</script>')
+      .script(mock)
+
+    expect(mock).toHaveBeenCalled()
+  })
+
+  it('should call when the src attribute is changed', () => {
+    const mock = jest.fn((script: SFCBlock) => {
+      expect(script.src).toBe('./bar.js')
+    })
+    const watcher = createDiffWatcher()
+
+    watcher.diff('test.vue', '<script src="./foo.js"></script>')
+    watcher.diff('test.vue', '<script src="./bar.js"></script>').script(mock)
+
+    expect(mock).toHaveBeenCalled()
+  })
+
+  it('should call when the scoped attribute is changed', () => {
+    const mock = jest.fn((styles: SFCBlock[]) => {
+      expect(styles[0].scoped).toBe(true)
+    })
+    const watcher = createDiffWatcher()
+
+    watcher.diff('test.vue', '<style       >p { color: red; }</style>')
+    watcher
+      .diff('test.vue', '<style scoped>p { color: red; }</style>')
+      .styles(mock)
+
+    expect(mock).toHaveBeenCalled()
+  })
+
+  it('should call when the module attribute is changed', () => {
+    const mock = jest.fn((styles: SFCBlock[]) => {
+      expect(styles[0].module).toBe('bar')
+    })
+    const watcher = createDiffWatcher()
+
+    watcher.diff('test.vue', '<style module="foo">p { color: red; }</style>')
+    watcher
+      .diff('test.vue', '<style module="bar">p { color: red; }</style>')
+      .styles(mock)
+
+    expect(mock).toHaveBeenCalled()
+  })
+
+  it('should call when any attributes are changed', () => {
+    const mock = jest.fn((test: SFCBlock[]) => {
+      expect(test[0].attrs.foo).toBe('world')
+    })
+    const watcher = createDiffWatcher()
+
+    watcher.diff('test.vue', '<test foo="hello"># Hello</test>')
+    watcher
+      .diff('test.vue', '<test foo="world"># Hello</test>')
+      .customBlocks('test', mock)
+
+    expect(mock).toHaveBeenCalled()
+  })
 })
