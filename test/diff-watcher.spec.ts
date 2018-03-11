@@ -191,4 +191,23 @@ describe('Diff Watcher', () => {
 
     expect(mock).toHaveBeenCalled()
   })
+
+  it('should call when block number is changed', () => {
+    const mock1 = jest.fn((styles: SFCBlock[]) => {
+      expect(styles.length).toBe(3)
+    })
+    const mock2 = jest.fn((styles: SFCBlock[]) => {
+      expect(styles.length).toBe(2)
+    })
+    const watcher = createDiffWatcher()
+
+    watcher.diff('test.vue', '<style></style>')
+    watcher
+      .diff('test.vue', '<style></style><style></style><style></style>')
+      .styles(mock1)
+    watcher.diff('test.vue', '<style></style><style></style>').styles(mock2)
+
+    expect(mock1).toHaveBeenCalled()
+    expect(mock2).toHaveBeenCalled()
+  })
 })
