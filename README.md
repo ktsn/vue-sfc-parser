@@ -61,7 +61,7 @@ The `SFCBlcok` is similar to `vue-template-compiler` one too, but having additio
 
 Create a watcher object which will detect each SFC block's diff. `SFCDiffWatcher` has following methods:
 
-* `add(filename: string, content: string): void`
+* `add(filename: string, content: string): SFCDescriptor`
 * `remove(filename: string): void`
 * `diff(filename: string, content: string): SFCDiff`
 
