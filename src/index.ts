@@ -4,6 +4,8 @@ import {
   SFCBlockRaw,
   SFCDescriptorRaw
 } from './sfc-parser'
+import { SFCDiffWatcher } from './diff-watcher'
+import { equalsRecord } from './utils'
 
 export class SFCBlock {
   type!: string
@@ -21,6 +23,24 @@ export class SFCBlock {
       const key = _key as keyof SFCBlockRaw
       this[key] = block[key]
     })
+  }
+
+  equals(block: SFCBlock): boolean {
+    if (this === block) {
+      return true
+    }
+
+    return (
+      this.type === block.type &&
+      this.content === block.content &&
+      this.start === block.start &&
+      this.end === block.end &&
+      this.lang === block.lang &&
+      this.src === block.src &&
+      this.scoped === block.scoped &&
+      this.module === block.module &&
+      equalsRecord(this.attrs, block.attrs)
+    )
   }
 
   calcGlobalOffset(offset: number): number {
@@ -47,4 +67,8 @@ export function parseComponent(code: string): SFCDescriptor {
       return value && new SFCBlock(value)
     }
   }) as SFCDescriptor
+}
+
+export function createDiffWatcher(): SFCDiffWatcher {
+  return new SFCDiffWatcher()
 }
