@@ -1,6 +1,6 @@
 {
   "name": "vue-sfc-parser",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "katashin",
   "description": "Vue.js single file component parser for static analysis",
   "keywords": [
