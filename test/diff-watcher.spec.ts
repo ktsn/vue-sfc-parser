@@ -2,108 +2,82 @@ import { createDiffWatcher, SFCBlock } from '../src/index'
 
 describe('Diff Watcher', () => {
   it('should watch template diff', () => {
-    const mock1 = jest.fn((template: SFCBlock) => {
-      expect(template.content).toBe('Hi')
-    })
-    const mock2 = jest.fn()
-    const mock3 = jest.fn((template: SFCBlock) => {
+    const mock1 = jest.fn()
+    const mock2 = jest.fn((template: SFCBlock) => {
       expect(template.content).toBe('Hello')
     })
     const watcher = createDiffWatcher()
 
+    watcher.add('test.vue', '<template>Hi</template>')
     watcher.diff('test.vue', '<template>Hi</template>').template(mock1)
-    watcher.diff('test.vue', '<template>Hi</template>').template(mock2)
-    watcher.diff('test.vue', '<template>Hello</template>').template(mock3)
+    watcher.diff('test.vue', '<template>Hello</template>').template(mock2)
 
-    expect(mock1).toHaveBeenCalled()
-    expect(mock2).not.toHaveBeenCalled()
-    expect(mock3).toHaveBeenCalled()
+    expect(mock1).not.toHaveBeenCalled()
+    expect(mock2).toHaveBeenCalled()
   })
 
   it('should watch script diff', () => {
-    const mock1 = jest.fn((script: SFCBlock) => {
-      expect(script.content).toBe('export default {}')
-    })
-    const mock2 = jest.fn()
-    const mock3 = jest.fn((script: SFCBlock) => {
+    const mock1 = jest.fn()
+    const mock2 = jest.fn((script: SFCBlock) => {
       expect(script.content).toBe('export default { name: "Test" }')
     })
     const watcher = createDiffWatcher()
 
+    watcher.add('test.vue', '<script>export default {}</script>')
     watcher.diff('test.vue', '<script>export default {}</script>').script(mock1)
-    watcher.diff('test.vue', '<script>export default {}</script>').script(mock2)
     watcher
       .diff('test.vue', '<script>export default { name: "Test" }</script>')
-      .script(mock3)
+      .script(mock2)
 
-    expect(mock1).toHaveBeenCalled()
-    expect(mock2).not.toHaveBeenCalled()
-    expect(mock3).toHaveBeenCalled()
+    expect(mock1).not.toHaveBeenCalled()
+    expect(mock2).toHaveBeenCalled()
   })
 
   it('should watch style diff', () => {
-    const mock1 = jest.fn((styles: SFCBlock[]) => {
-      expect(styles[0].content).toBe('p { color: red; }')
-    })
-    const mock2 = jest.fn()
-    const mock3 = jest.fn((styles: SFCBlock[]) => {
+    const mock1 = jest.fn()
+    const mock2 = jest.fn((styles: SFCBlock[]) => {
       expect(styles[0].content).toBe('p { color: blue; }')
     })
     const watcher = createDiffWatcher()
 
+    watcher.add('test.vue', '<style>p { color: red; }</style>')
     watcher.diff('test.vue', '<style>p { color: red; }</style>').styles(mock1)
-    watcher.diff('test.vue', '<style>p { color: red; }</style>').styles(mock2)
-    watcher.diff('test.vue', '<style>p { color: blue; }</style>').styles(mock3)
+    watcher.diff('test.vue', '<style>p { color: blue; }</style>').styles(mock2)
 
-    expect(mock1).toHaveBeenCalled()
-    expect(mock2).not.toHaveBeenCalled()
-    expect(mock3).toHaveBeenCalled()
+    expect(mock1).not.toHaveBeenCalled()
+    expect(mock2).toHaveBeenCalled()
   })
 
   it('should watch custom block diff', () => {
-    const mock1 = jest.fn((blocks: SFCBlock[]) => {
-      expect(blocks[0].content).toBe('# Hello')
-    })
-    const mock2 = jest.fn()
-    const mock3 = jest.fn((blocks: SFCBlock[]) => {
+    const mock1 = jest.fn()
+    const mock2 = jest.fn((blocks: SFCBlock[]) => {
       expect(blocks[0].content).toBe('# World')
     })
     const watcher = createDiffWatcher()
 
+    watcher.add('test.vue', '<docs># Hello</docs>')
     watcher.diff('test.vue', '<docs># Hello</docs>').customBlocks('docs', mock1)
-    watcher.diff('test.vue', '<docs># Hello</docs>').customBlocks('docs', mock2)
-    watcher.diff('test.vue', '<docs># World</docs>').customBlocks('docs', mock3)
+    watcher.diff('test.vue', '<docs># World</docs>').customBlocks('docs', mock2)
 
-    expect(mock1).toHaveBeenCalled()
-    expect(mock2).not.toHaveBeenCalled()
-    expect(mock3).toHaveBeenCalled()
+    expect(mock1).not.toHaveBeenCalled()
+    expect(mock2).toHaveBeenCalled()
   })
 
-  it('should always call if the file is passed on the first time', () => {
-    const mock1 = jest.fn()
-    const mock2 = jest.fn()
-    const mock3 = jest.fn()
-    const mock4 = jest.fn()
+  it('should remove fron watcher', () => {
     const watcher = createDiffWatcher()
 
-    watcher
-      .diff('test.vue', '')
-      .template(mock1)
-      .script(mock2)
-      .styles(mock3)
-      .customBlocks('test', mock4)
-
-    expect(mock1).toHaveBeenCalledWith(null)
-    expect(mock2).toHaveBeenCalledWith(null)
-    expect(mock3).toHaveBeenCalledWith([])
-    expect(mock4).toHaveBeenCalledWith([])
+    watcher.add('test.vue', '<template>Hi</template>')
+    watcher.remove('test.vue')
+    expect(() => {
+      watcher.diff('test.vue', '<template>Hi</template>')
+    }).toThrow()
   })
 
   it('should call when the block is disappeared', () => {
     const mock = jest.fn()
     const watcher = createDiffWatcher()
 
-    watcher.diff('test.vue', '<template>Hi</template>')
+    watcher.add('test.vue', '<template>Hi</template>')
     watcher.diff('test.vue', '').template(mock)
 
     expect(mock).toHaveBeenCalledWith(null)
@@ -116,7 +90,7 @@ describe('Diff Watcher', () => {
     })
     const watcher = createDiffWatcher()
 
-    watcher.diff('test.vue', '<template>Hi</template>')
+    watcher.add('test.vue', '<template>Hi</template>')
     watcher
       .diff('test.vue', '<script></script><template>Hi</template>')
       .template(mock)
@@ -130,7 +104,7 @@ describe('Diff Watcher', () => {
     })
     const watcher = createDiffWatcher()
 
-    watcher.diff('test.vue', '<script          >export default {}</script>')
+    watcher.add('test.vue', '<script          >export default {}</script>')
     watcher
       .diff('test.vue', '<script lang="ts">export default {}</script>')
       .script(mock)
@@ -144,7 +118,7 @@ describe('Diff Watcher', () => {
     })
     const watcher = createDiffWatcher()
 
-    watcher.diff('test.vue', '<script src="./foo.js"></script>')
+    watcher.add('test.vue', '<script src="./foo.js"></script>')
     watcher.diff('test.vue', '<script src="./bar.js"></script>').script(mock)
 
     expect(mock).toHaveBeenCalled()
@@ -156,7 +130,7 @@ describe('Diff Watcher', () => {
     })
     const watcher = createDiffWatcher()
 
-    watcher.diff('test.vue', '<style       >p { color: red; }</style>')
+    watcher.add('test.vue', '<style       >p { color: red; }</style>')
     watcher
       .diff('test.vue', '<style scoped>p { color: red; }</style>')
       .styles(mock)
@@ -170,7 +144,7 @@ describe('Diff Watcher', () => {
     })
     const watcher = createDiffWatcher()
 
-    watcher.diff('test.vue', '<style module="foo">p { color: red; }</style>')
+    watcher.add('test.vue', '<style module="foo">p { color: red; }</style>')
     watcher
       .diff('test.vue', '<style module="bar">p { color: red; }</style>')
       .styles(mock)
@@ -184,7 +158,7 @@ describe('Diff Watcher', () => {
     })
     const watcher = createDiffWatcher()
 
-    watcher.diff('test.vue', '<test foo="hello"># Hello</test>')
+    watcher.add('test.vue', '<test foo="hello"># Hello</test>')
     watcher
       .diff('test.vue', '<test foo="world"># Hello</test>')
       .customBlocks('test', mock)
@@ -201,7 +175,7 @@ describe('Diff Watcher', () => {
     })
     const watcher = createDiffWatcher()
 
-    watcher.diff('test.vue', '<style></style>')
+    watcher.add('test.vue', '<style></style>')
     watcher
       .diff('test.vue', '<style></style><style></style><style></style>')
       .styles(mock1)

@@ -1,29 +1,33 @@
+import assert = require('assert')
 import { SFCBlock, parseComponent, SFCDescriptor } from './index'
 
 export class SFCDiffWatcher {
   private prevMap: Record<string, SFCDescriptor> = {}
 
+  add(filename: string, content: string): void {
+    this.prevMap[filename] = parseComponent(content)
+  }
+
+  remove(filename: string): void {
+    delete this.prevMap[filename]
+  }
+
   diff(filename: string, content: string): SFCDiff {
-    const prev = this.prevMap.hasOwnProperty(filename)
-      ? this.prevMap[filename]
-      : null
+    assert(
+      this.prevMap.hasOwnProperty(filename),
+      'must call `add` before calling `diff`'
+    )
+
+    const prev = this.prevMap[filename]
     const curr = (this.prevMap[filename] = parseComponent(content))
     return new SFCDiff(prev, curr)
   }
 }
 
 export class SFCDiff {
-  constructor(
-    private prev: SFCDescriptor | null,
-    private curr: SFCDescriptor
-  ) {}
+  constructor(private prev: SFCDescriptor, private curr: SFCDescriptor) {}
 
   template(cb: (block: SFCBlock | null) => void): this {
-    if (!this.prev) {
-      cb(this.curr.template)
-      return this
-    }
-
     const prev = this.prev.template
     const curr = this.curr.template
     if (this.hasDiff(prev, curr)) {
@@ -34,11 +38,6 @@ export class SFCDiff {
   }
 
   script(cb: (block: SFCBlock | null) => void): this {
-    if (!this.prev) {
-      cb(this.curr.script)
-      return this
-    }
-
     const prev = this.prev.script
     const curr = this.curr.script
     if (this.hasDiff(prev, curr)) {
@@ -49,11 +48,6 @@ export class SFCDiff {
   }
 
   styles(cb: (blocks: SFCBlock[]) => void): this {
-    if (!this.prev) {
-      cb(this.curr.styles)
-      return this
-    }
-
     const prev = this.prev.styles
     const curr = this.curr.styles
     if (this.hasListDiff(prev, curr)) {
@@ -64,11 +58,6 @@ export class SFCDiff {
   }
 
   customBlocks(name: string, cb: (blocks: SFCBlock[]) => void): this {
-    if (!this.prev) {
-      cb(this.curr.customBlocks)
-      return this
-    }
-
     const prev = this.prev.customBlocks
     const curr = this.curr.customBlocks
     if (this.hasListDiff(prev, curr)) {
