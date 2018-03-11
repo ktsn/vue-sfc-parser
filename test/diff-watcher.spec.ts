@@ -63,7 +63,24 @@ describe('Diff Watcher', () => {
     expect(mock2).toHaveBeenCalled()
   })
 
-  it('should remove fron watcher', () => {
+  it('should return descriptor when add to watcher', () => {
+    const watcher = createDiffWatcher()
+    const code = `
+    <template>Hi</template>
+    <script>export default {}</script>
+    <style>p { color: red; }</style>
+    <docs># Hello</docs>
+    `
+
+    const desc = watcher.add('test.vue', code)
+    expect(desc.template!.content).toBe('Hi')
+    expect(desc.script!.content).toBe('export default {}')
+    expect(desc.styles[0].content).toBe('p { color: red; }')
+    expect(desc.customBlocks[0].type).toBe('docs')
+    expect(desc.customBlocks[0].content).toBe('# Hello')
+  })
+
+  it('should remove from watcher', () => {
     const watcher = createDiffWatcher()
 
     watcher.add('test.vue', '<template>Hi</template>')

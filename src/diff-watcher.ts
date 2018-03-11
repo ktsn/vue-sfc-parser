@@ -4,8 +4,8 @@ import { SFCBlock, parseComponent, SFCDescriptor } from './index'
 export class SFCDiffWatcher {
   private prevMap: Record<string, SFCDescriptor> = {}
 
-  add(filename: string, content: string): void {
-    this.prevMap[filename] = parseComponent(content)
+  add(filename: string, content: string): SFCDescriptor {
+    return (this.prevMap[filename] = parseComponent(content))
   }
 
   remove(filename: string): void {
