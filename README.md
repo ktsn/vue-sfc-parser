@@ -39,7 +39,7 @@ interface SFCDescriptor {
 }
 ```
 
-The `SFCBlcok` is similar to `vue-template-compiler` one too, but having additional helper methods.
+The `SFCBlock` is similar to `vue-template-compiler` one too, but having additional helper methods.
 
 ### Additional Helpers of SFCBlock
 
